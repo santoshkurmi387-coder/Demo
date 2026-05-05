@@ -1,489 +1,197 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="theme-color" content="#3b82f6"/>
-  <meta name="description" content="Attendance and Salary Management for Courier Branches"/>
-  <title>CourierOps — Branch Manager</title>
-
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="/manifest.json"/>
-  <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
-
-  <!-- Fonts & Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-
-  <!-- App CSS -->
-  <link rel="stylesheet" href="/css/app.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>기리고 · Girigo</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════
-     GLOBAL LOADER
-═══════════════════════════════════════════════ -->
-<div id="globalLoader">
-  <div class="spinner"></div>
-  <div id="loaderMsg">Loading…</div>
-</div>
-
-<!-- ═══════════════════════════════════════════════
-     PWA INSTALL BANNER
-═══════════════════════════════════════════════ -->
-<div id="installBanner">
-  <span><i class="fas fa-mobile-screen"></i> &nbsp;Install CourierOps on your device for quick access</span>
-  <div style="display:flex;gap:8px">
-    <button onclick="installApp()">Install App</button>
-    <button onclick="document.getElementById('installBanner').classList.remove('visible')" style="background:transparent;border-color:rgba(255,255,255,.2)">✕</button>
+  <!-- SPLASH SCREEN -->
+  <div id="screen-splash" class="screen active">
+    <div class="splash-bg"></div>
+    <div class="splash-noise"></div>
+    <div class="splash-content">
+      <div class="splash-hands-wrap">
+        <div class="pixel-hands" id="splash-hands">🙏</div>
+        <div class="hands-glow"></div>
+        <div class="ring ring1"></div>
+        <div class="ring ring2"></div>
+        <div class="ring ring3"></div>
+      </div>
+      <div class="app-name-wrap">
+        <p class="app-name-kr">기리고</p>
+        <p class="app-name-en">GIRIGO</p>
+      </div>
+      <div class="splash-subtitle">소원을 말해봐</div>
+      <div class="time-lock" id="time-lock-msg"></div>
+      <button class="btn-enter" id="btn-enter">열기 · OPEN</button>
+    </div>
+    <div class="splash-warning">⚠ 이 앱은 오전 0시~4시 사이에만 작동합니다</div>
   </div>
-</div>
 
-<!-- ═══════════════════════════════════════════════
-     AUTH SCREEN
-═══════════════════════════════════════════════ -->
-<div id="authScreen" style="display:none">
-  <div class="auth-card">
-    <div class="auth-brand">
-      <div class="auth-logo"><i class="fas fa-truck-fast"></i></div>
-      <div class="auth-brand-text">
-        <h1>CourierOps</h1>
-        <p>Branch Management System</p>
-      </div>
-    </div>
-    <!-- Dynamic OTP steps rendered here by JS -->
-    <div id="authContent"></div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════
-     APP SHELL
-═══════════════════════════════════════════════ -->
-<div id="appShell">
-
-  <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-mark">
-        <div class="logo-icon"><i class="fas fa-truck-fast"></i></div>
-        <div>
-          <div class="logo-text">CourierOps</div>
-          <div class="logo-sub">Branch Manager</div>
+  <!-- TERMS SCREEN -->
+  <div id="screen-terms" class="screen">
+    <div class="screen-bg"></div>
+    <div class="screen-noise"></div>
+    <div class="screen-content terms-content">
+      <div class="terms-hands">🙏</div>
+      <h2 class="terms-title">기리고에 오신 것을<br/>환영합니다</h2>
+      <p class="terms-subtitle">WELCOME TO GIRIGO</p>
+      <div class="terms-box">
+        <div class="terms-rule">
+          <span class="rule-num">01</span>
+          <span class="rule-text">소원은 직접 소리 내어 말해야 합니다<br/><small>Wishes must be spoken aloud</small></span>
+        </div>
+        <div class="terms-rule">
+          <span class="rule-num">02</span>
+          <span class="rule-text">하루에 하나의 소원만 허용됩니다<br/><small>Only one wish per night</small></span>
+        </div>
+        <div class="terms-rule">
+          <span class="rule-num">03</span>
+          <span class="rule-text">소원이 이루어지면 24시간 안에 전달하세요<br/><small>Pass it on within 24 hours</small></span>
+        </div>
+        <div class="terms-rule">
+          <span class="rule-num">04</span>
+          <span class="rule-text">두 번째 소원의 대가는 두 배입니다<br/><small>The toll of a second wish is doubled</small></span>
         </div>
       </div>
-    </div>
-
-    <nav class="sidebar-nav">
-      <div class="nav-lbl">Overview</div>
-      <div class="nav-item active" onclick="switchTab('dashboard',this)">
-        <i class="fas fa-gauge-high nav-icon"></i> Dashboard
-      </div>
-
-      <div class="nav-lbl">Operations</div>
-      <div class="nav-item" onclick="switchTab('attendance',this)">
-        <i class="fas fa-clock nav-icon"></i> Log Attendance
-      </div>
-      <div class="nav-item" onclick="switchTab('employees',this)">
-        <i class="fas fa-users nav-icon"></i> Employee List
-      </div>
-
-      <div class="nav-lbl">Finance</div>
-      <div class="nav-item" onclick="switchTab('advances',this)">
-        <i class="fas fa-hand-holding-dollar nav-icon"></i> Advance Salary
-      </div>
-      <div class="nav-item" onclick="switchTab('salary',this)">
-        <i class="fas fa-file-invoice-dollar nav-icon"></i> Salary Reports
-      </div>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="branch-info">
-        <div class="branch-left">
-          <div class="branch-avatar" id="sbAvatar">OM</div>
-          <div>
-            <div class="branch-name" id="sbName">Manager</div>
-            <div class="branch-role" id="sbRole">Administrator</div>
-          </div>
-        </div>
-        <button class="logout-btn" onclick="doLogout()" title="Sign out">
-          <i class="fas fa-right-from-bracket"></i>
-        </button>
-      </div>
-    </div>
-  </aside>
-
-  <div class="sidebar-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
-
-  <!-- Main -->
-  <main class="main">
-    <div class="topbar">
-      <div style="display:flex;align-items:center;gap:14px">
-        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-        <div>
-          <div class="page-title" id="pageTitle">Dashboard</div>
-          <div class="page-subtitle" id="pageSub">Branch overview &amp; quick stats</div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <div class="date-badge" id="curDate"></div>
-      </div>
-    </div>
-
-    <div class="content">
-
-      <!-- ── DASHBOARD ──────────────────────────────── -->
-      <div class="tab-panel active" id="tab-dashboard">
-
-        <div class="summary-grid">
-          <div class="stat-card blue">
-            <div class="stat-icon"><i class="fas fa-users"></i></div>
-            <div class="stat-value" id="cTotalEmp">0</div>
-            <div class="stat-label">Total Employees</div>
-            <div class="stat-change up"><i class="fas fa-circle-check"></i> Active staff</div>
-          </div>
-          <div class="stat-card green">
-            <div class="stat-icon"><i class="fas fa-user-check"></i></div>
-            <div class="stat-value" id="cPresent">0</div>
-            <div class="stat-label">Present Today</div>
-            <div class="stat-change" id="cPresentPct">—</div>
-          </div>
-          <div class="stat-card amber">
-            <div class="stat-icon"><i class="fas fa-indian-rupee-sign"></i></div>
-            <div class="stat-value" id="cSalary">₹0</div>
-            <div class="stat-label">Net Payable (Month)</div>
-            <div class="stat-change up" id="cSalaryMo">Current month</div>
-          </div>
-          <div class="stat-card red">
-            <div class="stat-icon"><i class="fas fa-hand-holding-dollar"></i></div>
-            <div class="stat-value" id="cAdvance">₹0</div>
-            <div class="stat-label">Advances (Month)</div>
-            <div class="stat-change down">Deducted from salary</div>
-          </div>
-        </div>
-
-        <div class="dash-grid">
-          <div class="section-card">
-            <div class="section-header">
-              <div class="section-title"><i class="fas fa-list-check"></i> Today's Attendance</div>
-              <span class="badge badge-present" id="todayBadge"></span>
-            </div>
-            <div id="todayList">
-              <div class="empty-state">
-                <i class="fas fa-calendar-xmark"></i>
-                <h3>No logs yet</h3>
-                <p>Go to "Log Attendance" to record today's shifts.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="section-card">
-            <div class="section-header">
-              <div class="section-title"><i class="fas fa-chart-bar"></i> Attendance by Role</div>
-            </div>
-            <div class="att-bars" id="attBars">
-              <div class="empty-state" style="padding:24px">
-                <i class="fas fa-users-slash"></i>
-                <h3>No data</h3><p>Add employees and log attendance to see breakdown.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── LOG ATTENDANCE ─────────────────────────── -->
-      <div class="tab-panel" id="tab-attendance">
-
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title"><i class="fas fa-clock"></i> Record Daily Attendance</div>
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="aEmp">Employee</label>
-              <select id="aEmp"><option value="">— Select Employee —</option></select>
-            </div>
-            <div class="form-group">
-              <label for="aDate">Date</label>
-              <input type="date" id="aDate"/>
-            </div>
-            <div class="form-group">
-              <label for="aStatus">Status</label>
-              <select id="aStatus" onchange="toggleTime()">
-                <option value="Present">Present</option>
-                <option value="Absent">Absent</option>
-                <option value="Half-Day">Half-Day</option>
-                <option value="Leave">Leave</option>
-              </select>
-            </div>
-            <div class="form-group" id="grpIn">
-              <label for="aIn">Check-In Time</label>
-              <input type="time" id="aIn" value="09:00" oninput="calcHrs()"/>
-            </div>
-            <div class="form-group" id="grpOut">
-              <label for="aOut">Check-Out Time</label>
-              <input type="time" id="aOut" value="18:00" oninput="calcHrs()"/>
-            </div>
-            <div class="form-group" id="grpHrs">
-              <label>Hours Worked</label>
-              <div class="hours-display" id="hrsDisplay">0h 0m</div>
-            </div>
-            <div class="form-group" style="grid-column:1/-1">
-              <label for="aNotes">Notes (optional)</label>
-              <input type="text" id="aNotes" placeholder="Any notes about this attendance…"/>
-            </div>
-          </div>
-          <div class="divider"></div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap">
-            <button class="btn btn-primary" id="saveAttBtn" onclick="logAtt()">
-              <i class="fas fa-circle-check"></i> Save Attendance
-            </button>
-            <button class="btn btn-secondary" onclick="resetAtt()">
-              <i class="fas fa-rotate-left"></i> Reset
-            </button>
-          </div>
-        </div>
-
-        <!-- Attendance History -->
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title"><i class="fas fa-history"></i> Attendance History</div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-              <select id="filterEmp" onchange="refreshAtt()" style="font-size:13px;padding:7px 10px;width:auto">
-                <option value="">All Employees</option>
-              </select>
-              <input type="month" id="filterMo" onchange="refreshAtt()" style="font-size:13px;padding:7px 10px;width:auto"/>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Employee</th><th>Role</th><th>Date</th><th>Status</th>
-                  <th>In</th><th>Out</th><th>Hours</th>
-                  <th class="no-print">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="attBody">
-                <tr><td colspan="8">
-                  <div class="empty-state">
-                    <i class="fas fa-calendar-days"></i>
-                    <h3>No records yet</h3><p>Log attendance above to see records here.</p>
-                  </div>
-                </td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── EMPLOYEES ──────────────────────────────── -->
-      <div class="tab-panel" id="tab-employees">
-
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title"><i class="fas fa-user-plus"></i> Add New Employee</div>
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="eName">Full Name</label>
-              <input type="text" id="eName" placeholder="e.g. Rajan Sharma"/>
-            </div>
-            <div class="form-group">
-              <label for="eId">Employee ID</label>
-              <input type="text" id="eId" placeholder="e.g. EMP-001"/>
-            </div>
-            <div class="form-group">
-              <label for="eRole">Role</label>
-              <select id="eRole">
-                <option>Delivery Executive</option>
-                <option>Sorter</option>
-                <option>Dispatcher</option>
-                <option>Loader</option>
-                <option>Supervisor</option>
-                <option>Driver</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="eWage">Daily Wage (₹)</label>
-              <input type="number" id="eWage" placeholder="e.g. 650" min="0"/>
-              <div class="form-hint">Amount paid per Present day</div>
-            </div>
-            <div class="form-group">
-              <label for="eMob">Mobile (optional)</label>
-              <input type="tel" id="eMob" placeholder="10-digit number" maxlength="10"/>
-            </div>
-          </div>
-          <div class="divider"></div>
-          <button class="btn btn-primary" id="addEmpBtn" onclick="addEmp()">
-            <i class="fas fa-user-plus"></i> Register Employee
-          </button>
-        </div>
-
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title"><i class="fas fa-id-badge"></i> Registered Employees</div>
-            <span class="badge badge-present" id="empCount">0 staff</span>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Employee</th><th>ID</th><th>Role</th>
-                  <th>Daily Wage</th><th>Mobile</th>
-                  <th class="no-print">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="empBody">
-                <tr><td colspan="6">
-                  <div class="empty-state">
-                    <i class="fas fa-user-slash"></i>
-                    <h3>No employees</h3><p>Add your first employee above.</p>
-                  </div>
-                </td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── ADVANCE SALARY ─────────────────────────── -->
-      <div class="tab-panel" id="tab-advances">
-
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title"><i class="fas fa-hand-holding-dollar"></i> Record Advance Salary</div>
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="advEmp">Employee</label>
-              <select id="advEmp"><option value="">— Select Employee —</option></select>
-            </div>
-            <div class="form-group">
-              <label for="advAmount">Advance Amount (₹)</label>
-              <input type="number" id="advAmount" placeholder="e.g. 2000" min="1"/>
-            </div>
-            <div class="form-group">
-              <label for="advMonth">For Month</label>
-              <input type="month" id="advMonth"/>
-            </div>
-            <div class="form-group">
-              <label for="advDate">Date Given</label>
-              <input type="date" id="advDate"/>
-            </div>
-            <div class="form-group" style="grid-column:1/-1">
-              <label for="advNote">Note (optional)</label>
-              <input type="text" id="advNote" placeholder="e.g. Medical emergency advance"/>
-            </div>
-          </div>
-          <div class="divider"></div>
-          <button class="btn btn-primary" id="addAdvBtn" onclick="addAdvance()">
-            <i class="fas fa-plus"></i> Add Advance
-          </button>
-        </div>
-
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title"><i class="fas fa-list"></i> Advance Records</div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-              <select id="filterAdvEmp" onchange="renderAdvancesTable()" style="font-size:13px;padding:7px 10px;width:auto">
-                <option value="">All Employees</option>
-              </select>
-              <input type="month" id="filterAdvMo" onchange="renderAdvancesTable()" style="font-size:13px;padding:7px 10px;width:auto"/>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Employee</th><th>Month</th><th>Date</th>
-                  <th>Amount</th><th>Note</th>
-                  <th class="no-print">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="advBody">
-                <tr><td colspan="6">
-                  <div class="empty-state">
-                    <i class="fas fa-money-bill-wave"></i>
-                    <h3>No advance records</h3><p>Add an advance using the form above.</p>
-                  </div>
-                </td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── SALARY REPORTS ─────────────────────────── -->
-      <div class="tab-panel" id="tab-salary">
-
-        <div class="section-card no-print">
-          <div class="section-header">
-            <div class="section-title"><i class="fas fa-filter"></i> Generate Report</div>
-          </div>
-          <div class="report-controls">
-            <div class="form-group">
-              <label for="repMo">Select Month</label>
-              <input type="month" id="repMo" style="width:200px"/>
-            </div>
-            <button class="btn btn-primary" id="genRepBtn" onclick="genReport()">
-              <i class="fas fa-chart-line"></i> Generate
-            </button>
-            <button class="btn btn-secondary" onclick="window.print()">
-              <i class="fas fa-print"></i> Print / Export
-            </button>
-          </div>
-        </div>
-
-        <!-- Salary breakdown info box -->
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:20px;font-size:13px;color:var(--text-dim);display:flex;gap:24px;flex-wrap:wrap">
-          <span><i class="fas fa-circle-info" style="color:var(--accent)"></i> &nbsp;<strong>Base Salary</strong> = Present × Wage + Half-Day × 0.5 × Wage</span>
-          <span><i class="fas fa-minus-circle" style="color:var(--red)"></i> &nbsp;<strong>Advance Deduction</strong> = Sum of advances for the month</span>
-          <span><i class="fas fa-check-circle" style="color:var(--green)"></i> &nbsp;<strong>Final Payable</strong> = Base Salary − Advance Taken</span>
-        </div>
-
-        <div class="section-card">
-          <div class="section-header">
-            <div class="section-title"><i class="fas fa-file-invoice-dollar"></i> Monthly Salary Report</div>
-            <span id="repLabel" style="font-size:13px;color:var(--text-muted)"></span>
-          </div>
-          <div id="repContent">
-            <div class="empty-state">
-              <i class="fas fa-file-circle-question"></i>
-              <h3>No report generated</h3>
-              <p>Select a month and click "Generate" to compute salaries.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /content -->
-  </main>
-</div><!-- /appShell -->
-
-<!-- ═══════════════════════════════════════════════
-     MODAL (shared for all edit dialogs)
-═══════════════════════════════════════════════ -->
-<div id="modal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3 id="modalTitle">Edit</h3>
-      <button class="modal-close" onclick="closeModal()"><i class="fas fa-xmark"></i></button>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" id="modalConfirmBtn">Save</button>
+      <button class="btn-agree" id="btn-agree">동의합니다 · I AGREE</button>
     </div>
   </div>
-</div>
 
-<!-- Toast container -->
-<div class="toast-container" id="toasts"></div>
+  <!-- RECORD SCREEN -->
+  <div id="screen-record" class="screen">
+    <div class="screen-bg"></div>
+    <div class="screen-noise"></div>
 
-<!-- Scripts — api.js must load before app.js -->
-<script src="/js/api.js"></script>
-<script src="/js/app.js"></script>
+    <div class="record-header">
+      <div class="rec-timer-wrap">
+        <span class="rec-label">WINDOW</span>
+        <span class="rec-clock" id="window-timer">04:00:00</span>
+      </div>
+      <div class="rec-dot-wrap">
+        <div class="rec-dot" id="rec-dot"></div>
+        <span class="rec-dot-label" id="rec-dot-label">READY</span>
+      </div>
+    </div>
+
+    <div class="camera-frame" id="camera-frame">
+      <video id="camera-video" autoplay playsinline muted></video>
+      <div class="camera-overlay"></div>
+      <div class="corner c-tl"></div>
+      <div class="corner c-tr"></div>
+      <div class="corner c-bl"></div>
+      <div class="corner c-br"></div>
+      <div class="scan-line" id="scan-line"></div>
+
+      <!-- Center hands overlay -->
+      <div class="center-hands-wrap" id="center-hands">
+        <div class="center-hands-emoji">🙏</div>
+        <div class="hands-pulse-ring rp1"></div>
+        <div class="hands-pulse-ring rp2"></div>
+      </div>
+    </div>
+
+    <div class="record-instructions" id="rec-instructions">
+      <p>카메라를 바라보고 소원을 말하세요</p>
+      <small>Look into the camera and speak your wish</small>
+    </div>
+
+    <div class="record-controls">
+      <button class="btn-record" id="btn-record">
+        <span class="record-icon"></span>
+      </button>
+      <span class="btn-record-label" id="rec-btn-label">소원 말하기</span>
+    </div>
+
+    <div class="record-footer">
+      <span class="footer-hint">이름을 소리 내어 말한 것은 구속됩니다</span>
+    </div>
+  </div>
+
+  <!-- TRANSCRIPTION SCREEN -->
+  <div id="screen-transcribe" class="screen">
+    <div class="screen-bg"></div>
+    <div class="screen-noise"></div>
+    <div class="screen-content transcribe-content">
+      <div class="trans-hands">🙏</div>
+      <p class="trans-label">소원이 감지되었습니다<br/><small>WISH DETECTED</small></p>
+      <div class="transcribe-box">
+        <p id="wish-text-display" class="wish-text-typed"></p>
+        <div class="typing-cursor" id="typing-cursor">|</div>
+      </div>
+      <div class="trans-actions" id="trans-actions" style="display:none">
+        <button class="btn-erase" id="btn-erase">지우기 · ERASE</button>
+        <button class="btn-submit" id="btn-submit">전송 · SUBMIT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMISSION / TRANSMISSION SCREEN -->
+  <div id="screen-transmit" class="screen">
+    <div class="screen-bg screen-bg-red"></div>
+    <div class="screen-noise"></div>
+    <div class="transmit-content">
+      <div class="transmit-hands-wrap">
+        <div class="transmit-hands">🙏</div>
+        <div class="transmit-ring tr1"></div>
+        <div class="transmit-ring tr2"></div>
+        <div class="transmit-ring tr3"></div>
+      </div>
+      <p class="transmit-label">전송 중<br/><small>TRANSMITTING</small></p>
+      <div class="signal-bars">
+        <div class="sbar sb1"></div>
+        <div class="sbar sb2"></div>
+        <div class="sbar sb3"></div>
+        <div class="sbar sb4"></div>
+        <div class="sbar sb5"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COUNTDOWN SCREEN -->
+  <div id="screen-countdown" class="screen">
+    <div class="screen-bg screen-bg-dark"></div>
+    <div class="screen-noise"></div>
+    <div class="countdown-content">
+      <div class="countdown-hands">🙏</div>
+      <p class="countdown-wish-label">소원이 접수되었습니다</p>
+      <p class="countdown-wish-label-en">YOUR WISH HAS BEEN RECEIVED</p>
+      <div id="wish-display-countdown" class="wish-display-box"></div>
+      <div class="countdown-label-wrap">
+        <span class="countdown-label-text">전달 기한</span>
+        <span class="countdown-label-small">PASS IT ON WITHIN</span>
+      </div>
+      <div class="countdown-timer-wrap">
+        <div class="countdown-digits" id="countdown-display">24:00:00</div>
+        <div class="countdown-bar-wrap">
+          <div class="countdown-bar" id="countdown-bar"></div>
+        </div>
+      </div>
+      <div class="countdown-warning" id="countdown-warning">
+        ⚠ 24시간 안에 전달하지 않으면 대가를 치릅니다
+      </div>
+      <button class="btn-pass" id="btn-pass">전달하기 · PASS ON</button>
+      <button class="btn-reset-small" id="btn-reset">처음으로</button>
+    </div>
+  </div>
+
+  <!-- ECHO SCREEN (playback in another voice) -->
+  <div id="screen-echo" class="screen">
+    <div class="screen-bg screen-bg-echo"></div>
+    <div class="screen-noise"></div>
+    <div class="echo-content">
+      <div class="echo-hands">🙏</div>
+      <p class="echo-title">메아리<br/><small>ECHO</small></p>
+      <p class="echo-sub">소원이 다른 목소리로 돌아왔습니다<br/><small>Your wish has returned in another voice.</small></p>
+      <div class="echo-warning">전화를 받지 마세요<br/><small>Do not pick up.</small></div>
+      <button class="btn-echo-close" id="btn-echo-close">닫기 · CLOSE</button>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
 </body>
 </html>
